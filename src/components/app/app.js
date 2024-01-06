@@ -103,7 +103,7 @@ export default class App extends Component {
       };
     });
   };
-  
+
   onChangeActiveFilter = (id) => {
     this.setState(({ filterData }) => {
       const newData = filterData.map((el) => ({
@@ -111,7 +111,7 @@ export default class App extends Component {
         active: el.id === id,
       }));
       return {
-        filterData: newData
+        filterData: newData,
       };
     });
     this.setState({
