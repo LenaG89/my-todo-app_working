@@ -3,14 +3,13 @@ import NewTaskForm from "../new-task-form";
 import TaskList from "../task-list";
 import Footer from "../footer";
 
-import "./app.css";
+
 
 export default class App extends Component {
   state = {
     todoDate: [
-      this.createTodoItem("Completed task"),
-      this.createTodoItem("Editing task"),
-      this.createTodoItem("Active task"),
+      this.createTodoItem("Learn React", 3000000),
+      this.createTodoItem("Drink coffee", 300000),
     ],
     filterData: [
       { filtername: "All", id: 1, active: true },
@@ -19,19 +18,39 @@ export default class App extends Component {
     ],
     activeFilter: 1,
   };
+  tickTac = (todoId) => {
+    this.setState((prevState) => ({
+      todoDate: prevState.todoDate.map((todo) =>
+      todo.id === todoId && todo.timer > 0 && todo.isRunning ? { ...todo, timer: todo.timer - 1000 } : todo
+      ),
+    }));
+  };
 
-  createTodoItem(label) {
+  onStopTimer = (todoId) => {
+    this.setState((prevState) => ({
+      todoDate: prevState.todoDate.map((todo) => (todo.id === todoId ? { ...todo, isRunning: false } : todo)),
+    }));
+  };
+
+  onStartTimer = (todoId) => {
+    this.setState((prevState) => ({
+      todoDate: prevState.todoDate.map((todo) => (todo.id === todoId ? { ...todo, isRunning: true } : todo)),
+    }));
+  };
+  createTodoItem(label, timer) {
     return {
       id: "id" + Math.random().toString(16).slice(2),
       label,
       checked: false,
       edited: false,
       date: new Date(),
+      timer: timer,
+      isRunning: false,
     };
   }
 
-  addItem = (text) => {
-    const newItem = this.createTodoItem(text);
+  addItem = (text, timer) => {
+    const newItem = this.createTodoItem(text, timer);
     this.setState(({ todoDate }) => {
       return { todoDate: [...todoDate, newItem] };
     });
@@ -120,7 +139,7 @@ export default class App extends Component {
   };
   render() {
     const leftCount = this.state.todoDate.filter((el) => !el.checked).length;
-    const { todoDate, filterData, activeFilter } = this.state;
+    const { todoDate, filterData, activeFilter, timer, isRunning } = this.state;
     return (
       <section className="todoapp">
         <header className="header">
@@ -135,6 +154,11 @@ export default class App extends Component {
             onEditTask={this.editTask}
             onChangeEditing={this.onChangeEditing}
             activeFilter={activeFilter}
+            timer={timer}
+            isRunning={isRunning}
+            tickTac={this.tickTac}
+            onStopTimer={this.onStopTimer}
+            onStartTimer={this.onStartTimer}
           />
           <Footer
             left={leftCount}

@@ -1,5 +1,5 @@
 import React from "react";
-import "./tasks-filter-in-footer.css";
+
 
  const TasksFilter =({filterProps, onChangeActiveFilter} )=>{
   const {filtername, active} = filterProps;

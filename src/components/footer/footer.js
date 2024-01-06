@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import TasksFilter from "../tasks-filter-in-footer";
-import "./footer.css";
+
 
 const Footer = ({left, onCliearCompleted, filterData, onChangeActiveFilter  }) => {
 

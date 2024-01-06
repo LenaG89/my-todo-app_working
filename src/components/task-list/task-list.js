@@ -3,7 +3,7 @@ import Task from "../task";
 import PropTypes from 'prop-types';
 
 
-const TaskList = ({ todos, onDeleted,  onToggleCheck, onCliearCompleted, onEditTask, onChangeEditing, activeFilter}) => {
+const TaskList = ({ todos, onDeleted,  onToggleCheck, onEditTask, onChangeEditing, activeFilter, tickTac, onStartTimer, onStopTimer}) => {
   
   const filtredTask = todos.filter((el) =>{
     if (activeFilter ===1) return true;
@@ -31,6 +31,9 @@ const TaskList = ({ todos, onDeleted,  onToggleCheck, onCliearCompleted, onEditT
         onToggleCheck= {() =>  onToggleCheck(id)}
         onEditTask = {onEditTask}
         onChangeEditing={() => onChangeEditing(id)}
+        onStopTimer={() => onStopTimer(id)}
+        onStartTimer={() => onStartTimer(id)}
+        tickTac={()=> tickTac(id)}
         />
         </li>
    
@@ -45,6 +48,9 @@ TaskList.defaultProps = {
   onEditTask: () => alert('To editing a task, pass the function'),
   onChangeEditing: () => alert('To editing status a task, pass the function'),
   activeFilter: 1,
+  timer: 30000,
+  onStartTimer: () => alert('To start timer, pass the function'),
+  onStopTimer: () => alert('To stop timer, pass the function'),
 };
 TaskList.propTypes = {
   todos: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -53,6 +59,10 @@ TaskList.propTypes = {
   onEditTask: PropTypes.func,
   onChangeEditing: PropTypes.func,
   activeFilter: PropTypes.number,
+  timer: PropTypes.number,
+  onStartTimer: PropTypes.func,
+  onStopTimer: PropTypes.func,
+  tickTac: PropTypes.func
 };
 
 export default TaskList;
