@@ -3,8 +3,6 @@ import NewTaskForm from "../new-task-form";
 import TaskList from "../task-list";
 import Footer from "../footer";
 
-
-
 export default class App extends Component {
   state = {
     todoDate: [
@@ -21,20 +19,26 @@ export default class App extends Component {
   tickTac = (todoId) => {
     this.setState((prevState) => ({
       todoDate: prevState.todoDate.map((todo) =>
-      todo.id === todoId && todo.timer > 0 && todo.isRunning ? { ...todo, timer: todo.timer - 1000 } : todo
+        todo.id === todoId && todo.timer > 0 && todo.isRunning
+          ? { ...todo, timer: todo.timer - 1000 }
+          : todo
       ),
     }));
   };
 
   onStopTimer = (todoId) => {
     this.setState((prevState) => ({
-      todoDate: prevState.todoDate.map((todo) => (todo.id === todoId ? { ...todo, isRunning: false } : todo)),
+      todoDate: prevState.todoDate.map((todo) =>
+        todo.id === todoId ? { ...todo, isRunning: false } : todo
+      ),
     }));
   };
 
   onStartTimer = (todoId) => {
     this.setState((prevState) => ({
-      todoDate: prevState.todoDate.map((todo) => (todo.id === todoId ? { ...todo, isRunning: true } : todo)),
+      todoDate: prevState.todoDate.map((todo) =>
+        todo.id === todoId ? { ...todo, isRunning: true } : todo
+      ),
     }));
   };
   createTodoItem(label, timer) {
@@ -44,7 +48,7 @@ export default class App extends Component {
       checked: false,
       edited: false,
       date: new Date(),
-      timer: timer,
+      timer,
       isRunning: false,
     };
   }
@@ -69,7 +73,11 @@ export default class App extends Component {
     this.setState(({ todoDate }) => {
       const indx = todoDate.findIndex((item) => item.id === id);
       const oldItem = todoDate[indx];
-      const newItem = { ...oldItem, checked: !oldItem.checked };
+      const newItem = {
+        ...oldItem,
+        checked: !oldItem.checked,
+        isRunning: false,
+      };
 
       return {
         todoDate: [

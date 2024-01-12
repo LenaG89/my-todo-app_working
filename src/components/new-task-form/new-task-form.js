@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 export default class NewTaskForm extends Component {
   static defaultProps = {
     onItemAdded: () => {
       return alert("To add a new task, pass the function");
-    }
+    },
   };
   static propTypes = {
     onItemAdded: PropTypes.func,
@@ -23,15 +23,19 @@ export default class NewTaskForm extends Component {
 
   onSubmit = (e) => {
     e.preventDefault();
-    if (this.state.label !== "") {
+    if (
+      this.state.label !== "" &&
+      this.state.sec !== "" &&
+      this.state.sec !== "0"
+    ) {
       this.props.onItemAdded(
         this.state.label,
         +this.state.min * 60000 + +this.state.sec * 1000
       );
       this.setState({
         label: "",
-        min: '',
-        sec: '',
+        min: "",
+        sec: "",
       });
     }
   };
@@ -82,7 +86,7 @@ export default class NewTaskForm extends Component {
             e.target.setCustomValidity("Неверный формат данных");
           }}
         />
-        <button style={{ display: 'none' }} type="submit"></button>
+        <button style={{ display: "none" }} type="submit"></button>
       </form>
     );
   }
