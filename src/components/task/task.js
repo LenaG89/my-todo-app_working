@@ -1,9 +1,18 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import PropTypes from "prop-types";
 
-export default class Task extends Component {
-  static propTypes = {
+ const Task = ({
+  onDeleted,
+  todo,
+  onToggleCheck,
+  onChangeEditing,
+  onEditTask,
+  onStartTimer,
+  onStopTimer,
+  tickTac
+}) => {
+  Task.propTypes = {
     onDeleted: PropTypes.func,
     todo: PropTypes.object,
     onToggleCheck: PropTypes.func,
@@ -12,39 +21,27 @@ export default class Task extends Component {
     onStopTimer: PropTypes.func,
     tickTac: PropTypes.func,
   };
+  const { id, label, checked, date, timer } = todo;
 
-  state = {
-    value: this.props.todo.label,
-  };
-  componentDidMount() {
-    this.timerID = setInterval(() => this.props.tickTac(), 1000);
-  }
+const [value, setValue] = useState(label)
+  
+  useEffect(() => {
+    let timerID = setInterval(() => tickTac(), 1000);
+    return () => {clearInterval(timerID)};
+  }, [tickTac]
+  );
+ 
 
-  componentWillUnmount() {
-    clearInterval(this.timerID);
-  }
-
-  onLabelChange = (e) => {
-    this.setState({
-      value: e.target.value,
-    });
+ const onLabelChange = (e) => {
+    setValue( e.target.value);
   };
 
-  onSubmit = (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    this.props.onEditTask(this.props.todo.id, this.state.value);
+    onEditTask(todo.id, value);
   };
 
-  render() {
-    const {
-      onDeleted,
-      todo,
-      onToggleCheck,
-      onChangeEditing,
-      onStartTimer,
-      onStopTimer,
-    } = this.props;
-    const { id, label, checked, date, timer } = todo;
+  
     const minutes = Math.floor(timer / 1000 / 60);
     const seconds = (timer / 1000) % 60;
     return (
@@ -78,15 +75,16 @@ export default class Task extends Component {
           <button className="icon icon-edit" onClick={onChangeEditing}></button>
           <button className="icon icon-destroy" onClick={onDeleted}></button>
         </div>
-        <form onSubmit={this.onSubmit}>
+        <form onSubmit={onSubmit}>
           <input
             type="text"
             className="edit"
-            value={this.state.value}
-            onChange={this.onLabelChange}
+            value={value}
+            onChange={onLabelChange}
           />
         </form>
       </>
     );
   }
-}
+
+export default Task
