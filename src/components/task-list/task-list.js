@@ -3,17 +3,13 @@ import Task from "../task";
 import PropTypes from 'prop-types';
 
 
-const TaskList = ({ todos, onDeleted,  onToggleCheck, onEditTask, onChangeEditing, activeFilter, tickTac, onStartTimer, onStopTimer}) => {
+const TaskList = ({ todos, onDeleted,  onToggleCheck, onEditTask, onChangeEditing,  onStartTimer, onStopTimer}) => {
   
-  const filtredTask = todos.filter((el) =>{
-    if (activeFilter ===1) return true;
-    if (activeFilter===2) return !el.checked;
-    if (activeFilter===3) return el.checked;
-    return true;
-  })
-  const elements = filtredTask.map((todo) => {
+  const keys = Object.keys(todos);
 
-    const {id, checked, edited } = todo;
+  const elements = keys.map((key) =>{
+
+    const { checked, edited } = todos[key];
     let classNames = null;
    if (checked){
     classNames = "completed"
@@ -24,16 +20,15 @@ const TaskList = ({ todos, onDeleted,  onToggleCheck, onEditTask, onChangeEditin
     return (
       <li 
       className={classNames}
-      key={id} >
+      key={key} >
         <Task 
-        todo={todo}
-        onDeleted={()=>onDeleted(id)}  
-        onToggleCheck= {() =>  onToggleCheck(id)}
+        todo={todos[key]}
+        onDeleted={()=>onDeleted(key)}  
+        onToggleCheck= {() =>  onToggleCheck(key)}
         onEditTask = {onEditTask}
-        onChangeEditing={() => onChangeEditing(id)}
-        onStopTimer={() => onStopTimer(id)}
-        onStartTimer={() => onStartTimer(id)}
-        tickTac={()=> tickTac(id)}
+        onChangeEditing={() => onChangeEditing(key)}
+        onStopTimer={() => onStopTimer(key)}
+        onStartTimer={() => onStartTimer(key)}
         />
         </li>
    
@@ -47,22 +42,30 @@ TaskList.defaultProps = {
   onDeleted: () => alert('To delite a task, pass the function'),
   onEditTask: () => alert('To editing a task, pass the function'),
   onChangeEditing: () => alert('To editing status a task, pass the function'),
-  activeFilter: 1,
+  activeFilter: 'all',
   timer: 30000,
   onStartTimer: () => alert('To start timer, pass the function'),
   onStopTimer: () => alert('To stop timer, pass the function'),
 };
 TaskList.propTypes = {
-  todos: PropTypes.arrayOf(PropTypes.object).isRequired,
+  todos: PropTypes.shape({
+    todo: PropTypes.shape({
+      id: PropTypes.number,
+      label: PropTypes.string,
+      cheked: PropTypes.bool,
+      edited: PropTypes.bool,
+      timer: PropTypes.number,
+      date: PropTypes.instanceOf(Date),
+    }),
+  }).isRequired,
   onToggleCheck: PropTypes.func,
   onDeleted: PropTypes.func,
   onEditTask: PropTypes.func,
   onChangeEditing: PropTypes.func,
-  activeFilter: PropTypes.number,
-  timer: PropTypes.number,
+  activeFilter: PropTypes.string,
   onStartTimer: PropTypes.func,
   onStopTimer: PropTypes.func,
-  tickTac: PropTypes.func
 };
-
+  
+ 
 export default TaskList;

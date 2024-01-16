@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { formatDistanceToNow } from "date-fns";
+import React, {useState, useEffect} from "react";
+import { formatDistance } from "date-fns";
 import PropTypes from "prop-types";
 
- const Task = ({
+ const Task =  ({
   onDeleted,
   todo,
   onToggleCheck,
@@ -10,7 +10,7 @@ import PropTypes from "prop-types";
   onEditTask,
   onStartTimer,
   onStopTimer,
-  tickTac
+
 }) => {
   Task.propTypes = {
     onDeleted: PropTypes.func,
@@ -19,18 +19,28 @@ import PropTypes from "prop-types";
     onChangeEditing: PropTypes.func,
     onStartTimer: PropTypes.func,
     onStopTimer: PropTypes.func,
-    tickTac: PropTypes.func,
   };
   const { id, label, checked, date, timer } = todo;
-
+  const [currentDate, setCurrentDate] = useState(new Date());
 const [value, setValue] = useState(label)
-  
-  useEffect(() => {
-    let timerID = setInterval(() => tickTac(), 1000);
-    return () => {clearInterval(timerID)};
-  }, [tickTac]
-  );
- 
+
+
+const handleDateChange = () => {
+  setCurrentDate(new Date());
+};
+
+
+useEffect(() => {
+  const interval = setInterval(() => handleDateChange(), 10000);
+
+  return () => {
+    clearInterval(interval);
+  };
+}, [currentDate]);
+
+
+const timeCheck = () =>
+    formatDistance(date, currentDate, { includeSeconds: true });
 
  const onLabelChange = (e) => {
     setValue( e.target.value);
@@ -38,7 +48,9 @@ const [value, setValue] = useState(label)
 
   const onSubmit = (e) => {
     e.preventDefault();
-    onEditTask(todo.id, value);
+      onEditTask(todo.id, value);
+      onChangeEditing(todo.id)
+    
   };
 
   
@@ -69,7 +81,7 @@ const [value, setValue] = useState(label)
               ></button>
             </span>
             <span className="description">
-              {formatDistanceToNow(date, { includeSeconds: true })}
+           { `${timeCheck()} ago`}
             </span>
           </label>
           <button className="icon icon-edit" onClick={onChangeEditing}></button>
@@ -87,4 +99,5 @@ const [value, setValue] = useState(label)
     );
   }
 
-export default Task
+  export default Task;
+

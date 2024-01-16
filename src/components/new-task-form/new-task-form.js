@@ -21,7 +21,7 @@ const NewTaskForm = ({ onItemAdded }) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (label !== "" && sec !== "" && sec !== "0") {
+    if (label !== "" && sec !== "" ) {
       onItemAdded(label, Number(min) * 60000 + Number(sec) * 1000);
       setLabel("");
       setMin("");

@@ -3,16 +3,22 @@ import PropTypes from 'prop-types';
 import TasksFilter from "../tasks-filter-in-footer";
 
 
-const Footer = ({left, onCliearCompleted, filterData, onChangeActiveFilter  }) => {
+const Footer = ({left, onCliearCompleted, onChangeActiveFilter, activeFilter  }) => {
+  const filterData = [
+    {filterName: 'all', label: "All", id: 1},
+    {filterName: 'active', label: "Active", id: 2},
+    {filterName: 'complite', label: "Completed", id: 3},
+  ]
+  const elements = filterData.map(({filterName, label, id}) => {
+    
 
-  const elements = filterData.map((el) => {
-    const {id, ...filterProps} = el;
     return (
       <li key={id}>
-      <TasksFilter
-      id={id} 
-      filterProps = {filterProps}
-      onChangeActiveFilter={()=>onChangeActiveFilter(id)}/>
+      <TasksFilter 
+      label={label}
+      filterName={filterName}
+      activeFilter={activeFilter}
+      onChangeActiveFilter={()=>onChangeActiveFilter(filterName)}/>
       </li>
     )
   })

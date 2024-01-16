@@ -1,156 +1,184 @@
-import React, { useState } from "react";
+import React, { useState,useEffect, useRef } from "react";
 import NewTaskForm from "../new-task-form";
 import TaskList from "../task-list";
 import Footer from "../footer";
 
 const App = () => {
-  const createTodoItem = (label, timer) => {
-    return {
-      id: "id" + Math.random().toString(16).slice(2),
-      label,
+  
+  const [todoData, setTodoData] = useState({
+ 100: {
+  id: 100,
+  label: "Learn React",
+  checked: false,
+  edited: false,
+  date: new Date(),
+  timer: 3000000, 
+},
+  },
+);
+  
+  const [activeFilter, setActiveFilter] = useState('');
+
+  const timersIdRef = useRef({ });
+  const idRef = useRef(101);
+
+  useEffect(() => {
+    Object.values(todoData).forEach((todo) => {
+      if (todo.timer === 0 && timersIdRef.current[todo.id]) {
+        clearInterval(timersIdRef.current[todo.id]);
+        timersIdRef.current = { ...timersIdRef.current, [todo.id]: "" };
+      }
+    });
+  }, [todoData]);
+
+  const tickTac = (id) => {
+    setTodoData((todoData) =>({
+      ...todoData,
+      [id]: { ...todoData[id], timer: todoData[id].timer - 1000 },
+    }));
+  };
+
+  const handlerStartTimer = (id) => {
+    const timerId = setInterval(() => tickTac(id), 1000);
+    timersIdRef.current = { ...timersIdRef.current, [id]: timerId };
+  };
+
+  const useAddItem = (text, timer) => {
+    const newTodo =
+    {
+      id: idRef.current,
+      label: text,
+      timer,
       checked: false,
       edited: false,
       date: new Date(),
-      timer,
-      isRunning: false,
     };
-  };
-  const [todoData, setTodoData] = useState([
-    createTodoItem("Learn React", 3000000),
-    createTodoItem("Drink coffee", 300000),
-  ]);
-  const [filterData, setFilterData] = useState([
-    { filtername: "All", id: 1, active: true },
-    { filtername: "Active", id: 2, active: false },
-    { filtername: "Completed", id: 3, active: false },
-  ]);
-  const [activeFilter, setActiveFilter] = useState(1);
-
-  const tickTac = (todoId) => {
-    setTodoData((prevTodoData) =>
-      prevTodoData.map((todo) => {
-        return todo.id === todoId && todo.timer > 0 && todo.isRunning
-          ? { ...todo, timer: todo.timer - 1000 }
-          : todo;
-      })
-    );
+    idRef.current += 1;
+    setTodoData((todoData) => ({ ...todoData, [newTodo.id]: newTodo }));
   };
 
-  const onStopTimer = (todoId) => {
-    setTodoData((prevTodoData) =>
-      prevTodoData.map((todo) =>
-        todo.id === todoId ? { ...todo, isRunning: false } : todo
-      )
-    );
+  const onStopTimer = (id) => {
+    clearInterval(timersIdRef.current[id]);
+    timersIdRef.current = { ...timersIdRef.current, [id]: "" };
   };
 
-  const onStartTimer = (todoId) => {
-    setTodoData((prevTodoData) =>
-      prevTodoData.map((todo) =>
-        todo.id === todoId ? { ...todo, isRunning: true } : todo
-      )
-    );
-  };
+  const onStartTimer = (id) => {
+    if (!todoData[id].timer) return;
+    if (timersIdRef.current[id]) return;
 
-  const addItem = (text, timer) => {
-    const newItem = createTodoItem(text, timer);
-    setTodoData((prevTodoData) => [...prevTodoData, newItem]);
+    handlerStartTimer(id);
   };
 
   const deleteItem = (id) => {
-    setTodoData((prevTodoData) => {
-      const indx = prevTodoData.findIndex((item) => item.id === id);
-      return [...prevTodoData.slice(0, indx), ...prevTodoData.slice(indx + 1)];
-    });
+    const newTodoData = Object.keys(todoData).reduce((acc, key) => {
+      if (key !== id) {
+        acc[key] = todoData[key];
+      }
+      return acc;
+    }, {});
+
+    clearInterval(timersIdRef.current[id]);
+    delete timersIdRef.current[id];
+
+    setTodoData(newTodoData);
   };
 
   const onToggleCheck = (id) => {
-    setTodoData((prevTodoData) => {
-      const indx = prevTodoData.findIndex((item) => item.id === id);
-      const oldItem = prevTodoData[indx];
-      const newItem = {
-        ...oldItem,
-        checked: !oldItem.checked,
-        isRunning: false,
-      };
-      return [
-        ...prevTodoData.slice(0, indx),
-        newItem,
-        ...prevTodoData.slice(indx + 1),
-      ];
-    });
-  };
+      setTodoData((todoData) => ({
+        ...todoData,
+        [id]: { ...todoData[id], checked: !todoData[id].checked },
+      }));
+      if(timersIdRef.current[id]){
+        onStopTimer(id)
+      }
+    };
+  
 
   const onChangeEditing = (id) => {
-    setTodoData((prevTodoData) => {
-      const idx = prevTodoData.findIndex((el) => el.id === id);
-      const oldItem = prevTodoData[idx];
-      const newItem = { ...oldItem, edited: !oldItem.edited };
-      const newData = [
-        ...prevTodoData.slice(0, idx),
-        newItem,
-        ...prevTodoData.slice(idx + 1),
-      ];
-      return newData;
-    });
+    setTodoData((todoData) => ({
+      ...todoData,
+      [id]: { ...todoData[id], edited: !todoData[id].edited },
+    }));
+  };
+
+  const filterObject = (todosList, bool) =>
+  Object.entries(todosList).reduce((acc, todo) => {
+    const [key, value] = todo;
+    const { checked } = value;
+    if (checked === bool) {
+      acc[key] = value;
+    }
+
+    return acc;
+  }, {});
+
+const filterTask = (filter) => {
+  switch (filter) {
+    case "active":
+      return filterObject(todoData, false);
+
+    case "complite":
+      return filterObject(todoData, true);
+
+    default:
+      return todoData;
+  }
+};
+  
+
+  const editTask = (id, text) => {
+    setTodoData((todoData)=>({ ...todoData, [id]: { ...todoData[id], label: text } }) )
+  }
+
+  const countTasks = () =>
+  Object.entries(todoData).reduce((acc, todo) => {
+    const [, value] = todo;
+    const { checked } = value;
+    if (!checked) {
+      return acc + 1;
+    }
+    return acc;
+  }, 0);
+
+  const onChangeActiveFilter = (filter) => {
+    setActiveFilter(filter);
   };
 
   const onCliearCompleted = () => {
-    setTodoData((prevTodoData) => {
-      const newArray = prevTodoData.filter((el) => !el.checked);
-      return newArray;
+    const activeTasks = filterObject(todoData, false);
+    const checkedTasks = Object.values(todoData).filter((todo) => todo.checked);
+    const checkedTasksIds = checkedTasks.map((todo) => `${todo.id}`);
+
+    checkedTasksIds.forEach((timerId) => {
+      clearInterval(timersIdRef.current[timerId]);
+      delete timersIdRef.current[timerId];
     });
+
+    setTodoData(activeTasks);
   };
 
-  const editTask = (id, text) => {
-    setTodoData((prevTodoData) => {
-      const idx = prevTodoData.findIndex((el) => el.id === id);
-      const oldItem = prevTodoData[idx];
-      const newItem = { ...oldItem, edited: false, label: text };
-      const newData = [
-        ...prevTodoData.slice(0, idx),
-        newItem,
-        ...prevTodoData.slice(idx + 1),
-      ];
-
-      return newData;
-    });
-  };
-
-  const onChangeActiveFilter = (id) => {
-    setFilterData((prevFilterData) => {
-      const newData = prevFilterData.map((el) => ({
-        ...el,
-        active: el.id === id,
-      }));
-      return newData;
-    });
-    setActiveFilter(id);
-  };
-
-  const leftCount = todoData.filter((el) => !el.checked).length;
+  const active = countTasks(todoData);
+  const visibleTasks = filterTask(activeFilter);
 
   return (
     <section className="todoapp">
       <header className="header">
         <h1>todos</h1>
-        <NewTaskForm onItemAdded={addItem} />
+        <NewTaskForm onItemAdded={useAddItem} />
       </header>
       <section className="main">
         <TaskList
-          todos={todoData}
+          todos={visibleTasks}
           onDeleted={deleteItem}
           onToggleCheck={onToggleCheck}
           onEditTask={editTask}
           onChangeEditing={onChangeEditing}
-          activeFilter={activeFilter}
-          tickTac={tickTac}
           onStopTimer={onStopTimer}
           onStartTimer={onStartTimer}
         />
         <Footer
-          left={leftCount}
-          filterData={filterData}
+          left={active}
+          activeFilter={activeFilter}
           onCliearCompleted={onCliearCompleted}
           onChangeActiveFilter={onChangeActiveFilter}
         />
@@ -158,5 +186,6 @@ const App = () => {
     </section>
   );
 };
+
 
 export default App;
